@@ -14,14 +14,13 @@
 (def matrix-with-no-pattern [["X" "O" "X"] ["O" "X" "X"] ["O" "X" "O"]])
 (def matrix-with-no-pattern-with-nil [["X" nil nil] [nil nil nil] [nil nil nil]])
 
-
 (deftest init-matrix-test
   (testing "Initializing an empty matrix"
     (is (= all-nil-matrix (init-matrix 3)))))
 
 (deftest mark-matrix-test
   (testing "Marking a matrix")
-  (let [matrix (init-matrix 3) updated-matrix (mark-matrix matrix player_1 0 2)]
+  (let [matrix (init-matrix size) updated-matrix (mark-matrix matrix player_1 0 2)]
     (is (= [[nil nil "X"] [nil nil nil] [nil nil nil]] updated-matrix)))
   (let [matrix [[nil "O" "X"] [nil nil nil] [nil nil nil]]
         updated-matrix (mark-matrix matrix player_1 0 1)]
@@ -72,11 +71,19 @@
   (testing "To get the coordinates entered by user")
   (is (= [1 2] (get-coordinates "1 2")))
   (is (= [0 1] (get-coordinates "0 1")))
-  (is (= nil (get-coordinates "0 3")))
-)
+  (is (= nil (get-coordinates "0 3"))))
 
 (deftest check-filled-matrix-test
   (testing "To see if the game got finished")
   (is (= false (check-filled-matrix matrix-with-no-pattern-with-nil)))
-  (is (= true (check-filled-matrix matrix-with-horizontal-pattern)))
-)
+  (is (= true (check-filled-matrix matrix-with-horizontal-pattern))))
+
+(deftest generate-possible-cells-test
+  (testing "To generate all possible cells")
+  (is (= [[0 0] [0 1] [0 2] [1 0] [1 1] [1 2] [2 0] [2 1] [2 2]] (generate-possible-cells 3)))
+  (is (= [[0 0] [0 1] [1 0] [1 1]] (generate-possible-cells 2))))
+
+(deftest remove-from-vector-test
+  (testing "A vector gets removed from a vector of vectors")
+  (is (= [] (remove-from-vector [[1 2]] [1 2])))
+  (is (= [[0 1]] (remove-from-vector [[1 2] [0 1]] [1 2]))))

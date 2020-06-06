@@ -31,9 +31,9 @@
 
 (defn check-diagonal
   [matrix player]
-  (let [initial-filter (set (keep-indexed #(if (= 0 (mod %1 4)) (if (= nil %2)
-                                                                  "_"
-                                                                  %2)) (flatten matrix)))]
+  (let [initial-filter (set (keep-indexed #(if (= 0 (mod %1 (inc size))) (if (= nil %2)
+                                                                           "_"
+                                                                           %2)) (flatten matrix)))]
     (if (not (= 1 (count initial-filter)))
       nil
       (if (= player (get initial-filter player))
@@ -57,7 +57,7 @@
 
 (defn in-range
   [x]
-  (and (> x -1) (< x 3)))
+  (and (> x -1) (< x size)))
 
 (defn check-filled-matrix
   [matrix]
@@ -70,13 +70,50 @@
   [coordinates]
   (let [initial-result (map #(Integer/parseInt %) (clojure.string/split coordinates #" "))]
     (if (and (= 2 (count initial-result))
-            (in-range (nth initial-result 0))
-            (in-range (nth initial-result 1)))
-    initial-result
-    nil)
-    ))
+             (in-range (nth initial-result 0))
+             (in-range (nth initial-result 1)))
+      initial-result
+      nil)))
 
-(defn play
+(defn generate-possible-cells
+  [size]
+  (for [a (range size) b (range size)] [a b]))
+
+(defn remove-from-vector
+  [vector-list to-remove]
+  (filter #(not= to-remove %) vector-list))
+
+(defn get-random-from-vector
+  [vector-list]
+  (nth vector-list (rand-int (count vector-list))))
+
+(defn play-move
+  [matrix player]
+  (println (map #(str % "\n") matrix))
+  (if (= player (check-matrix matrix player))
+    :player-won
+    (if (check-filled-matrix matrix)
+      :draw
+      :continue)))
+
+(defn play-computer
+  []
+  (loop [game (init-matrix 3), filled-vector (generate-possible-cells 3)]
+    (let [[x y] (get-coordinates (read-line))
+          new-matrix (mark-matrix game player_1 x y)
+          new-vector (remove-from-vector filled-vector [x y])]
+      (case (play-move new-matrix player_1)
+        :player-won (println (str "Player " player_1 " won"))
+        :draw (println "Draw")
+        :continue (let [[new_x new_y] (get-random-from-vector new-vector)
+                        newer-matrix (mark-matrix new-matrix player_2 new_x new_y)
+                        new-filled-vector (remove-from-vector new-vector [new_x new_y])]
+                    (case (play-move newer-matrix player_2)
+                      :player-won (println (str "Player " player_2 " won"))
+                      :draw (println "Draw")
+                      :continue (recur newer-matrix new-filled-vector)))))))
+
+(defn play-human
   []
   (loop [game (init-matrix 3), player player_1]
     (let [[x y] (get-coordinates (read-line)),  new-matrix (mark-matrix game player x y)]
@@ -86,33 +123,9 @@
         (if (check-filled-matrix new-matrix)
           (println "Draw")
           (recur new-matrix (if (= player player_1)
-                            player_2
-                            player_1)))))))
+                              player_2
+                              player_1)))))))
 
 (defn -main
   []
-  (play))
-        
-;; 00 01 02
-;; 10 11 12
-;; 20 21 22
-
-;; Draw Game
-;; 11
-;; 12
-;; 01
-;; 21
-;; 02
-;; 20
-;; 22
-;; 00
-;; 10
-
-;; Player "O" wins
-;; 00
-;; 20
-;; 11
-;; 22
-;; 02
-;; 21
-
+  (play-computer))

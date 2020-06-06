@@ -14,7 +14,11 @@ Currently if you enter wrong inputs, let's say (-1 3) or ("a" "b"), the program 
 
 ## Demonstration
 
+(Human Vs Human)
 [![asciicast](https://asciinema.org/a/336522.svg)](https://asciinema.org/a/336522)
+
+(Human Vs Computer)
+[![asciicast](https://asciinema.org/a/336992.svg)](https://asciinema.org/a/336992)
 
 ## License
 
